@@ -19,21 +19,21 @@ pub struct Opt {
     /// The root directory path to be searched, default "."
     #[arg(value_name = "path")]
     pub rootdir: Option<String>,
-    
+
     /// Filter by type, file:f, directory:d, symlink:l
-    #[arg(short = 't', long = "type", value_name = "filetype" )]
+    #[arg(short = 't', long = "type", value_name = "filetype")]
     pub filetype: Option<String>,
 
     /// Filter by file extension, eg. gz, csv, txt ...
     #[arg(short = 'e', long = "ext", value_name = "extension")]
     pub ext: Option<String>,
-    
+
     /// If specified, show file created time in output
     #[arg(short = 'c', long = "ctime")]
     pub created_time: bool,
 
     /// If specified, show file name in output
-    #[arg(short = 'n', long = "name",)]
+    #[arg(short = 'n', long = "name")]
     pub name: bool,
 
     /// If specified, perform depth-first search
