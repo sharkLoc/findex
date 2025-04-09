@@ -1,0 +1,19 @@
+[package]
+name = "findex"
+version = "0.1.0"
+edition = "2024"
+authors = ["sharkLoc <mmtinfo@163.com>"]
+rust-version = "1.85.0"
+categories = ["command-line-utilities"]
+readme = "README.md"
+
+[[bin]]
+name = "fdx"
+path = "src/main.rs" 
+
+
+
+[dependencies]
+clap = { version = "4.5.35", features = ["derive"] }
+regex = "1.11.1"
+walkdir = "2.5.0"
