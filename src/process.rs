@@ -27,7 +27,7 @@ where
     } else {
         Box::new(BufWriter::new(io::stdout()))
     };
-
+    let mut iterm_count = 0usize;
     // header info
     if !no_header {
         let mut header = Vec::new();
@@ -119,9 +119,11 @@ where
         } else {
             fp.write(buffer.concat().as_ref())?;
         }
+        iterm_count += 1;
     }
-
     fp.flush()?;
+
+    eprintln!("total iterm found: {}", iterm_count);
     Ok(())
 }
 
