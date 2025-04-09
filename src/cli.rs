@@ -5,12 +5,16 @@ pub const VERSION: &str = "0.1.0";
 #[derive(Parser, Debug)]
 #[command(
     name = "fdx",
+    author = "sharkLoc",
     version = VERSION,
     about = "A file scanning tool for Linux system disks",
     disable_version_flag = true,
     disable_help_flag = true,
 )]
-#[command(help_template = "{name} -- {about}\n\nVersion: {version}\n\n{usage-heading}   {usage}\n\n{all-args}\n")]
+#[command(help_template = "{name} -- {about}\n\nVersion: {version}\
+\nAuthors: {author} <mmtinfo@163.com>\
+\nSource code: https://github.com/sharkLoc/findex.git\
+\n\n{usage-heading}   {usage}\n\n{all-args}\n")]
 pub struct Opt {
     /// The root directory path to be searched, default "."
     #[arg(value_name = "path")]
