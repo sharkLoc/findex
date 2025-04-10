@@ -7,9 +7,9 @@ use std::{
 };
 use walkdir::{self, WalkDir};
 
-
 pub fn search_dir<P>(
     src: P,
+    show_size: bool,
     created_time: bool,
     filter_type: Option<&String>,
     extension: Option<&str>,
@@ -32,7 +32,9 @@ where
     if !no_header {
         let mut header = Vec::new();
         header.push("Type");
-        header.push("Size");
+        if show_size {
+            header.push("Size");
+        }
         if created_time {
             header.push("Ctime");
         }
@@ -67,10 +69,16 @@ where
         buffer.push(file_type.as_bytes());
         buffer.push(b"\t");
 
-        let file_size = metainfo.len().to_string();
-        buffer.push(file_size.as_bytes());
-        buffer.push(b"\t");
+        // show file size in output or not
+        let mut file_size_tmp = String::new();
+        if show_size {
+            let file_size = metainfo.len().to_string();
+            file_size_tmp.push_str(&file_size);
+            buffer.push(file_size_tmp.as_bytes());
+            buffer.push(b"\t");
+        }
 
+        // show file create time in output or not
         let mut ctime_fmt = String::new();
         if created_time {
             let now = SystemTime::now();
@@ -83,6 +91,7 @@ where
             buffer.push(b"\t");
         }
 
+        // show file name(just name) or not
         if show_file_name {
             let file_name = rec.file_name().to_str().unwrap().as_bytes();
             buffer.push(file_name);
@@ -107,6 +116,7 @@ where
         }
 
         buffer.push(b"\n");
+        // output file type by file extension
         if let Some(exten) = extension {
             if rec
                 .file_name()

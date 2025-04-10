@@ -21,35 +21,39 @@ pub struct Opt {
     pub rootdir: Option<String>,
 
     /// Filter by type, file:f, directory:d, symlink:l
-    #[arg(short = 't', long = "type", value_name = "filetype")]
+    #[arg(short = 't', long = "type", value_name = "FileType")]
     pub filetype: Option<String>,
 
     /// Filter by file extension, eg. gz, csv, txt ...
-    #[arg(short = 'e', long = "ext", value_name = "extension")]
+    #[arg(short = 'e', long = "ext", value_name = "Extension")]
     pub ext: Option<String>,
 
+    /// If specified, show file size in output
+    #[arg(short = 's', long = "size", value_name = "Bool")]
+    pub show_size: bool,
+
     /// If specified, show file created time in output
-    #[arg(short = 'c', long = "ctime")]
+    #[arg(short = 'c', long = "ctime", value_name = "Bool")]
     pub created_time: bool,
 
     /// If specified, show file name in output
-    #[arg(short = 'n', long = "name")]
+    #[arg(short = 'n', long = "name", value_name = "Bool")]
     pub name: bool,
 
     /// If specified, perform depth-first search
-    #[arg(short = 'd', long = "depth-firsh")]
+    #[arg(short = 'd', long = "depth-firsh", value_name = "Bool")]
     pub depth: bool,
 
     /// If specified, show sub-iterm in symbolink dir
-    #[arg(short = 'l', long = "link")]
+    #[arg(short = 'l', long = "link", value_name = "Bool")]
     pub show_link_dir: bool,
 
     /// If specified, no header in output
-    #[arg(short = 'H', long = "no-header")]
+    #[arg(short = 'H', long = "no-header", value_name = "Bool")]
     pub header: bool,
 
     /// Output file name or write to stdout
-    #[arg(short = 'o', long = "out", value_name = "FILE")]
+    #[arg(short = 'o', long = "out", value_name = "File")]
     pub out: Option<String>,
 
     /// Prints help information

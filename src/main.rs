@@ -13,7 +13,8 @@ fn main() -> Result<(), Error> {
     if let Some(dir) = opt.rootdir {
         match opt.ext {
             Some(ext) => search_dir(
-                dir,
+                dir, 
+                opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
                 Some(ext.as_str()),
@@ -25,6 +26,7 @@ fn main() -> Result<(), Error> {
             )?,
             None => search_dir(
                 dir,
+                opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
                 None,
@@ -39,6 +41,7 @@ fn main() -> Result<(), Error> {
         match opt.ext {
             Some(ext) => search_dir(
                 ".",
+                opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
                 Some(ext.as_str()),
@@ -49,7 +52,8 @@ fn main() -> Result<(), Error> {
                 opt.out.as_ref(),
             )?,
             None => search_dir(
-                ".",
+                ".", 
+                opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
                 None,
@@ -61,11 +65,6 @@ fn main() -> Result<(), Error> {
             )?,
         }
     };
-
-    // match opt.rootdir {
-    //     Some(dir) => search_dir(dir,Some(opt.ext.unwrap().as_str()),opt.name, opt.depth, opt.show_link_dir,opt.header,opt.out.as_ref()),
-    //     None => search_dir(".", Some(opt.ext.unwrap().as_str()), opt.name, opt.depth, opt.show_link_dir,opt.header,opt.out.as_ref())
-    // }.unwrap();
 
     Ok(())
 }

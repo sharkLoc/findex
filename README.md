@@ -1,3 +1,5 @@
+A file scanning tool for Linux system disks
+
 
 ## usage
 ```bash
