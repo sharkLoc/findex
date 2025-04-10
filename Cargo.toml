@@ -4,8 +4,14 @@ version = "0.1.0"
 edition = "2024"
 authors = ["sharkLoc <mmtinfo@163.com>"]
 rust-version = "1.85.0"
+homepage = "https://github.com/sharkLoc/findex"
+repository = "https://github.com/sharkLoc/findex"
 categories = ["command-line-utilities"]
+description = "A file scanning tool for Linux system disks"
+keywords = ["scanning", "disk"]
 readme = "README.md"
+license = "MIT"
+
 
 [[bin]]
 name = "fdx"
@@ -17,3 +23,7 @@ path = "src/main.rs"
 clap = { version = "4.5.35", features = ["derive"] }
 regex = "1.11.1"
 walkdir = "2.5.0"
+
+
+[profile.release]
+strip = true
