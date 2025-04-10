@@ -2,10 +2,11 @@ use std::{
     fs::File,
     io::{self, BufWriter, Error, Write},
     path::{Path, PathBuf},
-    time::SystemTime, usize,
+    time::SystemTime,
 };
 use walkdir::{self, WalkDir};
 
+#[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
     src: P,
     all: bool,
@@ -57,7 +58,7 @@ where
         }
         header.push("Path");
         let header_join = header.join("\t") + "\n";
-        fp.write(header_join.as_bytes())?;
+        fp.write_all(header_join.as_bytes())?;
     }
 
     for entry in WalkDir::new(src)
@@ -143,10 +144,10 @@ where
                 .map(|s| PathBuf::from(s).extension().is_some_and(|ext| ext == exten))
                 .unwrap_or(false)
             {
-                fp.write(buffer.concat().as_ref())?;
+                fp.write_all(buffer.concat().as_ref())?;
             }
         } else {
-            fp.write(buffer.concat().as_ref())?;
+            fp.write_all(buffer.concat().as_ref())?;
         }
         iterm_count += 1;
     }
@@ -163,14 +164,12 @@ fn size_trans(size: f64, fmt: &str) -> String {
     let mb = 1024. * kb;
     let gb = 1024. * mb;
     
-    let result = match fmt {
+    match fmt {
         "G" => format!("{:.2}G", size / gb),
         "M" => format!("{:.2}M", size / mb),
         "K" => format!("{:.2}K", size / kb),
         _ => format!("{}", size)
-    };
-
-    result
+    }
 }
 
 

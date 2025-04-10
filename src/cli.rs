@@ -1,5 +1,3 @@
-use std::usize;
-
 use clap::{ArgAction, Parser};
 
 pub const VERSION: &str = "0.1.0";
