@@ -1,18 +1,17 @@
 use clap::{ArgAction, Parser};
 
-pub const VERSION: &str = "0.1.0";
-
 #[derive(Parser, Debug)]
 #[command(
     name = "fdx",
-    author = "sharkLoc",
-    version = VERSION,
+    author = env!("CARGO_PKG_AUTHORS"),
+    version = env!("CARGO_PKG_VERSION"),
     about = "A file scanning tool for Linux system disks",
+    long_about = "A powerful file scanning tool for Linux system disks, {n}supports filtering, formatting, and advanced search options.",
     disable_version_flag = true,
     disable_help_flag = true,
 )]
 #[command(help_template = "{name} -- {about}\n\nVersion: {version}\
-\nAuthors: {author} <mmtinfo@163.com>\
+\nAuthors: {author}\
 \nSource code: https://github.com/sharkLoc/findex.git\
 \n\n{usage-heading}   {usage}\n\n{all-args}\n")]
 pub struct Opt {
@@ -49,10 +48,10 @@ pub struct Opt {
     pub name: bool,
 
     /// If specified, perform depth-first search
-    #[arg(short = 'D', long = "depth-firsh")]
+    #[arg(short = 'D', long = "depth-first")]
     pub depth: bool,
 
-    /// If specified, show sub-iterm in symbolink dir
+    /// If specified, show sub-item in symbolink dir
     #[arg(short = 'l', long = "link")]
     pub show_link_dir: bool,
 

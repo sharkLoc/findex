@@ -1,11 +1,11 @@
 A file scanning tool for Linux system disks
 
-
 ## usage
+
 ```bash
 fdx -- A file scanning tool for Linux system disks
 
-Version: 0.1.0
+Version: 0.1.1
 Authors: sharkLoc <mmtinfo@163.com>
 Source code: https://github.com/sharkLoc/findex.git
 
