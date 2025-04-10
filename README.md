@@ -15,14 +15,20 @@ Arguments:
   [path]  The root directory path to be searched, default "."
 
 Options:
-  -t, --type <filetype>  Filter by type, file:f, directory:d, symlink:l
-  -e, --ext <extension>  Filter by file extension, eg. gz, csv, txt ...
-  -c, --ctime            If specified, show file created time in output
-  -n, --name             If specified, show file name in output
-  -d, --depth-firsh      If specified, perform depth-first search
-  -l, --link             If specified, show sub-iterm in symbolink dir
-  -H, --no-header        If specified, no header in output
-  -o, --out <FILE>       Output file name or write to stdout
-  -h, --help             Prints help information
-  -V, --version          Prints version information
+  -a, --all                     If specified, show all iterm in output
+  -d, --deepth <Number>         Set the maximum depth [default: 18446744073709551615]
+  -t, --type                    If specified, show file type in output
+  -s, --size                    If specified, show file size in output
+  -c, --ctime                   If specified, show file created time in output
+  -n, --name                    If specified, show file name in output
+  -D, --depth-firsh             If specified, perform depth-first search
+  -l, --link                    If specified, show sub-iterm in symbolink dir
+  -e, --ext <Extension>         Filter by file extension, eg. gz, csv, txt, the file extension should not contain a dot
+  -H, --no-header               If specified, no header in output
+  -T, --filter-type <FileType>  Filter by type, file:f, directory:d, symlink:l. 
+                                eg. only file in output: -T f, only directory in output: -T d
+  -o, --out <File>              Output file name or write to stdout
+  -h, --help                    Prints help information
+  -V, --version                 Prints version information
+
 ```

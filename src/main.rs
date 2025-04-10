@@ -7,13 +7,27 @@ use process::search_dir;
 mod cli;
 mod process;
 
-fn main() -> Result<(), Error> {
+
+fn main() {
+    match run_main() {
+        Ok(_) => {}
+        Err(_) => {
+            std::process::exit(1);
+        }
+    }
+}
+
+
+fn run_main() -> Result<(), Error> {
     let opt = Opt::parse();
 
     if let Some(dir) = opt.rootdir {
         match opt.ext {
             Some(ext) => search_dir(
                 dir, 
+                opt.show_all,
+                opt.deepth,
+                opt.show_type,
                 opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
@@ -26,6 +40,9 @@ fn main() -> Result<(), Error> {
             )?,
             None => search_dir(
                 dir,
+                opt.show_all,
+                opt.deepth,
+                opt.show_type,
                 opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
@@ -41,6 +58,9 @@ fn main() -> Result<(), Error> {
         match opt.ext {
             Some(ext) => search_dir(
                 ".",
+                opt.show_all,
+                opt.deepth,
+                opt.show_type,
                 opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),
@@ -53,6 +73,9 @@ fn main() -> Result<(), Error> {
             )?,
             None => search_dir(
                 ".", 
+                opt.show_all,
+                opt.deepth,
+                opt.show_type,
                 opt.show_size,
                 opt.created_time,
                 opt.filetype.as_ref(),

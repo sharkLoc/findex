@@ -1,14 +1,16 @@
 use std::{
     fs::File,
     io::{self, BufWriter, Error, Write},
-    path::Path,
-    path::PathBuf,
-    time::SystemTime,
+    path::{Path, PathBuf},
+    time::SystemTime, usize,
 };
 use walkdir::{self, WalkDir};
 
 pub fn search_dir<P>(
     src: P,
+    all: bool,
+    deepth: usize,
+    show_type: bool,
     show_size: bool,
     created_time: bool,
     filter_type: Option<&String>,
@@ -28,10 +30,21 @@ where
         Box::new(BufWriter::new(io::stdout()))
     };
     let mut iterm_count = 0usize;
+
+    let (mut show_type,mut show_size, mut created_time, mut show_file_name) = (show_type,show_size,created_time,show_file_name);
+
+    if all {
+        show_type = true;
+        show_size = true;
+        created_time = true;
+        show_file_name = true;
+    }
     // header info
     if !no_header {
         let mut header = Vec::new();
-        header.push("Type");
+        if show_type {
+            header.push("Type");
+        }
         if show_size {
             header.push("Size");
         }
@@ -48,6 +61,7 @@ where
 
     for entry in WalkDir::new(src)
         .min_depth(0)
+        .max_depth(deepth)
         .contents_first(depth_first)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .follow_links(show_link_dir)
@@ -57,17 +71,21 @@ where
         let metainfo = rec.metadata()?;
         let mut buffer: Vec<&[u8]> = vec![];
 
-        let file_type = if rec.file_type().is_dir() {
-            "dir"
-        } else if rec.file_type().is_file() {
-            "file"
-        } else if rec.file_type().is_symlink() {
-            "symlink"
-        } else {
-            "other"
-        };
-        buffer.push(file_type.as_bytes());
-        buffer.push(b"\t");
+        
+        if show_size {
+            let file_type = if rec.file_type().is_dir() {
+                "dir"
+            } else if rec.file_type().is_file() {
+                "file"
+            } else if rec.file_type().is_symlink() {
+                "symlink"
+            } else {
+                "other"
+            };
+            buffer.push(file_type.as_bytes());
+            buffer.push(b"\t");
+        }
+        
 
         // show file size in output or not
         let mut file_size_tmp = String::new();
@@ -133,7 +151,7 @@ where
     }
     fp.flush()?;
 
-    eprintln!("total iterm found: {}", iterm_count);
+    eprintln!("total iterm: {}", iterm_count);
     Ok(())
 }
 
