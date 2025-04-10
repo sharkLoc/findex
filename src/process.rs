@@ -12,6 +12,7 @@ pub fn search_dir<P>(
     deepth: usize,
     show_type: bool,
     show_size: bool,
+    size_fmt: &str,
     created_time: bool,
     filter_type: Option<&String>,
     extension: Option<&str>,
@@ -90,7 +91,7 @@ where
         // show file size in output or not
         let mut file_size_tmp = String::new();
         if show_size {
-            let file_size = metainfo.len().to_string();
+            let file_size = size_trans(metainfo.len() as f64, size_fmt);
             file_size_tmp.push_str(&file_size);
             buffer.push(file_size_tmp.as_bytes());
             buffer.push(b"\t");
@@ -154,6 +155,26 @@ where
     eprintln!("total iterm: {}", iterm_count);
     Ok(())
 }
+
+
+
+fn size_trans(size: f64, fmt: &str) -> String {
+    let kb = 1024f64;
+    let mb = 1024. * kb;
+    let gb = 1024. * mb;
+    
+    let result = match fmt {
+        "G" => format!("{:.2}G", size / gb),
+        "M" => format!("{:.2}M", size / mb),
+        "K" => format!("{:.2}K", size / kb),
+        _ => format!("{}", size)
+    };
+
+    result
+}
+
+
+
 
 fn time_trans(seconds: u64) -> String {
     let days = seconds / 86400;

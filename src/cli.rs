@@ -38,6 +38,10 @@ pub struct Opt {
     #[arg(short = 's', long = "size")]
     pub show_size: bool,
 
+    /// Format file size, use with -s, possible value: B,K,M,G
+    #[arg(short = 'b', long = "byte", default_value_t = String::from("B"), value_name = "String")]
+    pub size_fmt: String,
+
     /// If specified, show file created time in output
     #[arg(short = 'c', long = "ctime")]
     pub created_time: bool,
@@ -55,7 +59,7 @@ pub struct Opt {
     pub show_link_dir: bool,
 
     /// Filter by file extension, eg. gz, csv, txt, the file extension should not contain a dot.  
-    #[arg(short = 'e', long = "ext", value_name = "Extension")]
+    #[arg(short = 'e', long = "ext", value_name = "String")]
     pub ext: Option<String>,
 
     /// If specified, no header in output
@@ -64,7 +68,7 @@ pub struct Opt {
 
     /// Filter by type, file:f, directory:d, symlink:l.
     /// {n}eg. only file in output: -T f, only directory in output: -T d
-    #[arg(short = 'T', long = "filter-type", value_name = "FileType")]
+    #[arg(short = 'T', long = "filter-type", value_name = "String")]
     pub filetype: Option<String>,
 
     /// Output file name or write to stdout
