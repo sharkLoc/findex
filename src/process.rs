@@ -174,16 +174,17 @@ where
                 .map(|s| PathBuf::from(s).extension().is_some_and(|ext| ext == exten))
                 .unwrap_or(false)
             {
+                iterm_count += 1;
                 fp.write_all(buffer.concat().as_ref())?;
             }
         } else {
+            iterm_count += 1;
             fp.write_all(buffer.concat().as_ref())?;
         }
-        iterm_count += 1;
     }
     fp.flush()?;
 
-    eprintln!("total iterm: {}", iterm_count);
+    eprintln!("total item: {}", iterm_count);
     Ok(())
 }
 
