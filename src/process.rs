@@ -1,4 +1,5 @@
 use std::{
+    env,
     fs::File,
     io::{self, BufWriter, Error, Write},
     path::{Path, PathBuf},
@@ -19,6 +20,7 @@ pub fn search_dir<P>(
     extension: Option<&str>,
     show_file_name: bool,
     depth_first: bool,
+    full_path: bool,
     show_link_dir: bool,
     no_header: bool,
     outfile: Option<&String>,
@@ -33,13 +35,20 @@ where
     };
     let mut iterm_count = 0usize;
 
-    let (mut show_type,mut show_size, mut created_time, mut show_file_name) = (show_type,show_size,created_time,show_file_name);
+    let (mut show_type, mut show_size, mut created_time, mut show_file_name, mut full_path) = (
+        show_type,
+        show_size,
+        created_time,
+        show_file_name,
+        full_path,
+    );
 
     if all {
         show_type = true;
         show_size = true;
         created_time = true;
         show_file_name = true;
+        full_path = true;
     }
     // header info
     if !no_header {
@@ -73,7 +82,6 @@ where
         let metainfo = rec.metadata()?;
         let mut buffer: Vec<&[u8]> = vec![];
 
-        
         if show_size {
             let file_type = if rec.file_type().is_dir() {
                 "dir"
@@ -87,7 +95,6 @@ where
             buffer.push(file_type.as_bytes());
             buffer.push(b"\t");
         }
-        
 
         // show file size in output or not
         let mut file_size_tmp = String::new();
@@ -118,9 +125,28 @@ where
             buffer.push(b"\t");
         }
 
-        let file_path = rec.path().to_str().unwrap().as_bytes();
-        buffer.push(file_path);
-        buffer.push(b"\t");
+        // show full path or not
+        let mut file_path = PathBuf::new();
+        let ledding_root = rec.path().starts_with("/");
+        if full_path {
+            if !ledding_root {
+                file_path.push(env::current_dir()?);
+                file_path.push(rec.path().strip_prefix(".").unwrap());
+            } else {
+                file_path.push(rec.path());
+            }
+            buffer.push(file_path.to_str().unwrap().as_bytes());
+            buffer.push(b"\t");
+        } else {
+            if !ledding_root {
+                file_path.push(rec.path().strip_prefix(".").unwrap());
+            } else {
+                file_path.push(rec.path());
+            }
+
+            buffer.push(file_path.to_str().unwrap().as_bytes());
+            buffer.push(b"\t");
+        }
 
         // skip mismatch file type
         if let Some(typ) = filter_type {
@@ -136,6 +162,7 @@ where
         }
 
         buffer.push(b"\n");
+        
         // output file type by file extension
         if let Some(exten) = extension {
             if rec
@@ -157,23 +184,18 @@ where
     Ok(())
 }
 
-
-
 fn size_trans(size: f64, fmt: &str) -> String {
     let kb = 1024f64;
     let mb = 1024. * kb;
     let gb = 1024. * mb;
-    
+
     match fmt {
         "G" => format!("{:.2}G", size / gb),
         "M" => format!("{:.2}M", size / mb),
         "K" => format!("{:.2}K", size / kb),
-        _ => format!("{}", size)
+        _ => format!("{}", size),
     }
 }
-
-
-
 
 fn time_trans(seconds: u64) -> String {
     let days = seconds / 86400;

@@ -7,7 +7,6 @@ use process::search_dir;
 mod cli;
 mod process;
 
-
 fn main() {
     match run_main() {
         Ok(_) => {}
@@ -17,14 +16,13 @@ fn main() {
     }
 }
 
-
 fn run_main() -> Result<(), Error> {
     let opt = Opt::parse();
 
     if let Some(dir) = opt.rootdir {
         match opt.ext {
             Some(ext) => search_dir(
-                dir, 
+                dir,
                 opt.show_all,
                 opt.deepth,
                 opt.show_type,
@@ -35,6 +33,7 @@ fn run_main() -> Result<(), Error> {
                 Some(ext.as_str()),
                 opt.name,
                 opt.depth,
+                opt.full_path,
                 opt.show_link_dir,
                 opt.header,
                 opt.out.as_ref(),
@@ -51,6 +50,7 @@ fn run_main() -> Result<(), Error> {
                 None,
                 opt.name,
                 opt.depth,
+                opt.full_path,
                 opt.show_link_dir,
                 opt.header,
                 opt.out.as_ref(),
@@ -70,12 +70,13 @@ fn run_main() -> Result<(), Error> {
                 Some(ext.as_str()),
                 opt.name,
                 opt.depth,
+                opt.full_path,
                 opt.show_link_dir,
                 opt.header,
                 opt.out.as_ref(),
             )?,
             None => search_dir(
-                ".", 
+                ".",
                 opt.show_all,
                 opt.deepth,
                 opt.show_type,
@@ -86,6 +87,7 @@ fn run_main() -> Result<(), Error> {
                 None,
                 opt.name,
                 opt.depth,
+                opt.full_path,
                 opt.show_link_dir,
                 opt.header,
                 opt.out.as_ref(),

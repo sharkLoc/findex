@@ -31,11 +31,11 @@ pub struct Opt {
     #[arg(short = 't', long = "type")]
     pub show_type: bool,
 
-    /// If specified, show file size in output
+    /// If specified, show file size in output  
     #[arg(short = 's', long = "size")]
     pub show_size: bool,
 
-    /// Format file size, use with -s, possible value: B,K,M,G
+    /// Show file size in human-readable format, use with -s, possible value: B,K,M,G
     #[arg(short = 'b', long = "byte", default_value_t = String::from("B"), value_name = "String")]
     pub size_fmt: String,
 
@@ -43,6 +43,10 @@ pub struct Opt {
     #[arg(short = 'c', long = "ctime")]
     pub created_time: bool,
 
+    /// If specified, show full path in output
+    #[arg(short = 'p', long = "full-path")]
+    pub full_path: bool,
+    
     /// If specified, show file name in output
     #[arg(short = 'n', long = "name")]
     pub name: bool,
