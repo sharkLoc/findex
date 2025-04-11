@@ -15,12 +15,13 @@ Arguments:
   [path]  The root directory path to be searched, default "."
 
 Options:
-  -a, --all                   If specified, show all iterm in output
+  -a, --all                   If specified, show all iterm in output, including file type, size, created time, file name and path
   -d, --deepth <Number>       Set the maximum depth [default: 18446744073709551615]
   -t, --type                  If specified, show file type in output
   -s, --size                  If specified, show file size in output
-  -b, --byte <String>         Show file size in human-readable format, use with -s, possible value: B,K,M,G [default: B]
+  -b, --byte <String>         Show file size in human-readable format, use with -s, k(Kb)/m(Mb)/g(Gb), default show b(bytes) [default: b]
   -c, --ctime                 If specified, show file created time in output
+  -i, --hidden                If specified, show hidden files in output
   -p, --full-path             If specified, show full path in output
   -n, --name                  If specified, show file name in output
   -D, --depth-first           If specified, perform depth-first search

@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
     time::SystemTime,
 };
-use walkdir::{self, WalkDir};
+use walkdir::{self, WalkDir,DirEntry};
 
 #[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
@@ -22,6 +22,7 @@ pub fn search_dir<P>(
     depth_first: bool,
     full_path: bool,
     show_link_dir: bool,
+    show_hiden: bool,
     no_header: bool,
     outfile: Option<&String>,
 ) -> Result<(), Error>
@@ -69,20 +70,22 @@ where
         let header_join = header.join("\t") + "\n";
         fp.write_all(header_join.as_bytes())?;
     }
-
+    
     for entry in WalkDir::new(src)
         .min_depth(0)
         .max_depth(deepth)
         .contents_first(depth_first)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .follow_links(show_link_dir)
+        .into_iter()
+        .filter_entry(|e| !is_hidden(e) || show_hiden)
     {
         let rec = entry?;
 
         let metainfo = rec.metadata()?;
         let mut buffer: Vec<&[u8]> = vec![];
 
-        if show_size {
+        if show_type {
             let file_type = if rec.file_type().is_dir() {
                 "dir"
             } else if rec.file_type().is_file() {
@@ -190,9 +193,9 @@ fn size_trans(size: f64, fmt: &str) -> String {
     let gb = 1024. * mb;
 
     match fmt {
-        "G" => format!("{:.2}G", size / gb),
-        "M" => format!("{:.2}M", size / mb),
-        "K" => format!("{:.2}K", size / kb),
+        "g" | "G" => format!("{:.2}G", size / gb),
+        "m" | "M" => format!("{:.2}M", size / mb),
+        "k" | "K" => format!("{:.2}K", size / kb),
         _ => format!("{}", size),
     }
 }
@@ -225,4 +228,11 @@ fn time_trans(seconds: u64) -> String {
     }
 
     time_string
+}
+
+fn is_hidden(entry: &DirEntry) -> bool {
+    entry.file_name()
+         .to_str()
+         .map(|s| s.starts_with(".") && s != "." && s != "..")
+         .unwrap_or(false)
 }

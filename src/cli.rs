@@ -19,7 +19,7 @@ pub struct Opt {
     #[arg(value_name = "path")]
     pub rootdir: Option<String>,
 
-    /// If specified, show all iterm in output
+    /// If specified, show all iterm in output, including file type, size, created time, file name and path.
     #[arg(short = 'a', long = "all")]
     pub show_all: bool,
 
@@ -35,13 +35,17 @@ pub struct Opt {
     #[arg(short = 's', long = "size")]
     pub show_size: bool,
 
-    /// Show file size in human-readable format, use with -s, possible value: B,K,M,G
-    #[arg(short = 'b', long = "byte", default_value_t = String::from("B"), value_name = "String")]
+    /// Show file size in human-readable format, use with -s, k(Kb)/m(Mb)/g(Gb), default show b(bytes)  
+    #[arg(short = 'b', long = "byte", default_value_t = String::from("b"), value_name = "String")]
     pub size_fmt: String,
 
     /// If specified, show file created time in output
     #[arg(short = 'c', long = "ctime")]
     pub created_time: bool,
+
+    /// If specified, show hidden files in output
+    #[arg(short = 'i', long = "hidden")]
+    pub show_hiden: bool,
 
     /// If specified, show full path in output
     #[arg(short = 'p', long = "full-path")]
