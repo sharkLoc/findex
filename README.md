@@ -35,3 +35,7 @@ Options:
   -V, --version               Prints version information
 
 ```
+
+## TODO
+* ansi style in tty output
+* add logger
