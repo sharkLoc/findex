@@ -1,3 +1,4 @@
+use ansiterm::{ANSIByteStrings, Colour};
 use std::{
     env,
     fs::File,
@@ -5,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
     time::SystemTime,
 };
-use walkdir::{self, WalkDir,DirEntry};
+use walkdir::{self, DirEntry, WalkDir};
 
 #[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
@@ -34,6 +35,9 @@ where
     } else {
         Box::new(BufWriter::new(io::stdout()))
     };
+    // 输出结果参数的整体搭配逻辑不对。
+    let is_tty = outfile.is_none();
+
     let mut iterm_count = 0usize;
 
     let (mut show_type, mut show_size, mut created_time, mut show_file_name, mut full_path) = (
@@ -70,7 +74,7 @@ where
         let header_join = header.join("\t") + "\n";
         fp.write_all(header_join.as_bytes())?;
     }
-    
+
     for entry in WalkDir::new(src)
         .min_depth(0)
         .max_depth(deepth)
@@ -84,6 +88,7 @@ where
 
         let metainfo = rec.metadata()?;
         let mut buffer: Vec<&[u8]> = vec![];
+        let mut buffer_colour: Vec<ansiterm::ANSIGenericString<'_, [u8]>> = vec![];
 
         if show_type {
             let file_type = if rec.file_type().is_dir() {
@@ -95,8 +100,24 @@ where
             } else {
                 "other"
             };
-            buffer.push(file_type.as_bytes());
-            buffer.push(b"\t");
+            if is_tty {
+                if file_type == "dir" {
+                    buffer_colour.push(Colour::Blue.paint("dir".as_bytes()));
+                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                } else if file_type == "symlink" {
+                    buffer_colour.push(Colour::BrightCyan.paint("symlink".as_bytes()));
+                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                } else if file_type == "file" {
+                    buffer_colour.push(Colour::Default.paint("file".as_bytes()));
+                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                } else {
+                    buffer_colour.push(Colour::Red.paint("other".as_bytes()));
+                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                }
+            } else {
+                buffer.push(file_type.as_bytes());
+                buffer.push(b"\t");
+            }
         }
 
         // show file size in output or not
@@ -104,8 +125,14 @@ where
         if show_size {
             let file_size = size_trans(metainfo.len() as f64, size_fmt);
             file_size_tmp.push_str(&file_size);
-            buffer.push(file_size_tmp.as_bytes());
-            buffer.push(b"\t");
+
+            if is_tty {
+                buffer_colour.push(Colour::Default.paint(file_size_tmp.as_bytes()));
+                buffer_colour.push(Colour::Default.paint(b"\t"));
+            } else {
+                buffer.push(file_size_tmp.as_bytes());
+                buffer.push(b"\t");
+            }
         }
 
         // show file create time in output or not
@@ -115,22 +142,34 @@ where
             let ctime = metainfo.created()?;
             let ctime_diff = now.duration_since(ctime).unwrap().as_secs();
             let fmt_time = time_trans(ctime_diff);
-
             ctime_fmt.push_str(&fmt_time);
-            buffer.push(ctime_fmt.as_bytes());
-            buffer.push(b"\t");
+
+            if is_tty {
+                buffer_colour.push(Colour::Default.paint(ctime_fmt.as_bytes()));
+                buffer_colour.push(Colour::Default.paint(b"\t"));
+            } else {
+                buffer.push(ctime_fmt.as_bytes());
+                buffer.push(b"\t");
+            }
         }
 
         // show file name(just name) or not
         if show_file_name {
             let file_name = rec.file_name().to_str().unwrap().as_bytes();
-            buffer.push(file_name);
-            buffer.push(b"\t");
+            if is_tty {
+                buffer_colour.push(Colour::Default.paint(file_name));
+                buffer_colour.push(Colour::Default.paint(b"\t"));
+            } else {
+                buffer.push(file_name);
+                buffer.push(b"\t");
+            }
         }
 
         // show full path or not
         let mut file_path = PathBuf::new();
+        //let mut file_path_colour = PathBuf::new();
         let ledding_root = rec.path().starts_with("/");
+
         if full_path {
             if !ledding_root {
                 file_path.push(env::current_dir()?);
@@ -138,8 +177,22 @@ where
             } else {
                 file_path.push(rec.path());
             }
-            buffer.push(file_path.to_str().unwrap().as_bytes());
-            buffer.push(b"\t");
+
+            if is_tty {
+                if file_path.is_dir() {
+                    buffer_colour.push(Colour::Blue.paint(file_path.to_str().unwrap().as_bytes()));
+                } else if file_path.is_symlink() {
+                    buffer_colour
+                        .push(Colour::BrightCyan.paint(file_path.to_str().unwrap().as_bytes()));
+                } else if file_path.is_file() {
+                    buffer_colour
+                        .push(Colour::Default.paint(file_path.to_str().unwrap().as_bytes()));
+                } else {
+                    buffer_colour.push(Colour::Red.paint(file_path.to_str().unwrap().as_bytes()));
+                }
+            } else {
+                buffer.push(file_path.to_str().unwrap().as_bytes());
+            }
         } else {
             if !ledding_root {
                 file_path.push(rec.path().strip_prefix(".").unwrap());
@@ -147,8 +200,21 @@ where
                 file_path.push(rec.path());
             }
 
-            buffer.push(file_path.to_str().unwrap().as_bytes());
-            buffer.push(b"\t");
+            if is_tty {
+                if file_path.is_dir() {
+                    buffer_colour.push(Colour::Blue.paint(file_path.to_str().unwrap().as_bytes()));
+                } else if file_path.is_symlink() {
+                    buffer_colour
+                        .push(Colour::BrightCyan.paint(file_path.to_str().unwrap().as_bytes()));
+                } else if file_path.is_file() {
+                    buffer_colour
+                        .push(Colour::Default.paint(file_path.to_str().unwrap().as_bytes()));
+                } else {
+                    buffer_colour.push(Colour::Red.paint(file_path.to_str().unwrap().as_bytes()));
+                }
+            } else {
+                buffer.push(file_path.to_str().unwrap().as_bytes());
+            }
         }
 
         // skip mismatch file type
@@ -164,8 +230,12 @@ where
             }
         }
 
-        buffer.push(b"\n");
-        
+        if is_tty {
+            buffer_colour.push(Colour::Default.paint(b"\n"));
+        } else {
+            buffer.push(b"\n");
+        }
+
         // output file type by file extension
         if let Some(exten) = extension {
             if rec
@@ -175,11 +245,21 @@ where
                 .unwrap_or(false)
             {
                 iterm_count += 1;
-                fp.write_all(buffer.concat().as_ref())?;
+                if is_tty {
+                    let ansistr = ANSIByteStrings(&buffer_colour);
+                    ansistr.write_to(&mut fp)?;
+                } else {
+                    fp.write_all(buffer.concat().as_ref())?;
+                }
             }
         } else {
             iterm_count += 1;
-            fp.write_all(buffer.concat().as_ref())?;
+            if is_tty {
+                let ansistr = ANSIByteStrings(&buffer_colour);
+                ansistr.write_to(&mut fp)?;
+            } else {
+                fp.write_all(buffer.concat().as_ref())?;
+            }
         }
     }
     fp.flush()?;
@@ -232,8 +312,9 @@ fn time_trans(seconds: u64) -> String {
 }
 
 fn is_hidden(entry: &DirEntry) -> bool {
-    entry.file_name()
-         .to_str()
-         .map(|s| s.starts_with(".") && s != "." && s != "..")
-         .unwrap_or(false)
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with(".") && s != "." && s != "..")
+        .unwrap_or(false)
 }

@@ -37,5 +37,6 @@ Options:
 ```
 
 ## TODO
-* ansi style in tty output
-* add logger
+
+- [X] ansi style in tty output
+- [ ] add logger

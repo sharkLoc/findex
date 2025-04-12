@@ -50,7 +50,7 @@ pub struct Opt {
     /// If specified, show full path in output
     #[arg(short = 'p', long = "full-path")]
     pub full_path: bool,
-    
+
     /// If specified, show file name in output
     #[arg(short = 'n', long = "name")]
     pub name: bool,
