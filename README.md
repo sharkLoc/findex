@@ -36,6 +36,10 @@ Options:
 
 ```
 
+## example:
+
+![img](https://github.com/sharkLoc/findex/blob/main/misc/eg.PNG)
+
 ## TODO
 
 - [X] ansi style in tty output
