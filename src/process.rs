@@ -12,7 +12,7 @@ use walkdir::{self, DirEntry, WalkDir};
 pub fn search_dir<P>(
     src: P,
     all: bool,
-    deepth: usize,
+    depth: usize,
     show_type: bool,
     show_size: bool,
     size_fmt: &str,
@@ -35,10 +35,10 @@ where
     } else {
         Box::new(BufWriter::new(io::stdout()))
     };
-    // 输出结果参数的整体搭配逻辑不对。
+    
     let is_tty = outfile.is_none();
 
-    let mut iterm_count = 0usize;
+    let mut item_count = 0usize;
 
     let (mut show_type, mut show_size, mut created_time, mut show_file_name, mut full_path) = (
         show_type,
@@ -77,7 +77,7 @@ where
 
     for entry in WalkDir::new(src)
         .min_depth(0)
-        .max_depth(deepth)
+        .max_depth(depth)
         .contents_first(depth_first)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .follow_links(show_link_dir)
@@ -194,11 +194,14 @@ where
                 buffer.push(file_path.to_str().unwrap().as_bytes());
             }
         } else {
-            if !ledding_root {
-                file_path.push(rec.path().strip_prefix(".").unwrap());
-            } else {
-                file_path.push(rec.path());
-            }
+
+            // if !ledding_root {
+            //     file_path.push(rec.path().strip_prefix(".").unwrap());
+            // } else {
+            //     file_path.push(rec.path());
+            // }
+            file_path.push(rec.path());
+
 
             if is_tty {
                 if file_path.is_dir() {
@@ -244,7 +247,7 @@ where
                 .map(|s| PathBuf::from(s).extension().is_some_and(|ext| ext == exten))
                 .unwrap_or(false)
             {
-                iterm_count += 1;
+                item_count += 1;
                 if is_tty {
                     let ansistr = ANSIByteStrings(&buffer_colour);
                     ansistr.write_to(&mut fp)?;
@@ -253,7 +256,7 @@ where
                 }
             }
         } else {
-            iterm_count += 1;
+            item_count += 1;
             if is_tty {
                 let ansistr = ANSIByteStrings(&buffer_colour);
                 ansistr.write_to(&mut fp)?;
@@ -264,7 +267,7 @@ where
     }
     fp.flush()?;
 
-    eprintln!("total item: {}", iterm_count);
+    eprintln!("total item: {}", item_count);
     Ok(())
 }
 
@@ -304,7 +307,8 @@ fn time_trans(seconds: u64) -> String {
     }
     if remaining_seconds_after_minutes > 0 {
         time_string.push_str(&format!("{}s", remaining_seconds_after_minutes));
-    } else {
+    } 
+    if time_string.is_empty() {
         time_string.push_str("0s");
     }
 
@@ -317,4 +321,23 @@ fn is_hidden(entry: &DirEntry) -> bool {
         .to_str()
         .map(|s| s.starts_with(".") && s != "." && s != "..")
         .unwrap_or(false)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_size_trans() {
+        assert_eq!(size_trans(1024.0, "k"), "1.00K");
+        assert_eq!(size_trans(1048576.0, "m"), "1.00M");
+        assert_eq!(size_trans(1073741824.0, "g"), "1.00G");
+    }
+
+    #[test]
+    fn test_time_trans() {
+        assert_eq!(time_trans(3600), "1h");
+        assert_eq!(time_trans(86461), "1d1m1s");
+        assert_eq!(time_trans(86401), "1d1s");
+    }
 }
