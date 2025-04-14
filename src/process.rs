@@ -197,8 +197,14 @@ where
 
         if full_path {
             if !ledding_root {
+                
                 file_path.push(env::current_dir()?);
-                file_path.push(rec.path().strip_prefix(".").unwrap());
+                
+                if rec.path().starts_with(".") {
+                    file_path.push(rec.path().strip_prefix(".").unwrap());
+                } else {
+                    file_path.push(rec.path());
+                }
             } else {
                 file_path.push(rec.path());
             }
