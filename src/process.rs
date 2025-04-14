@@ -178,7 +178,7 @@ where
                     Some("log") | Some("txt") | Some("md") | Some("Md") | Some("MD") | Some("yaml") | Some("yml") | Some("toml") | Some("ini") => {
                         Colour::Cyan.paint(file_name)
                     }
-                    Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java") | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh") | Some("bash") | Some("zsh") | Some("fish")=> {
+                    Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java") | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh") | Some("bash") | Some("zsh") | Some("fish") | Some("r") | Some("R") => {
                         Colour::BrightGreen.paint(file_name)
                     }
                     _ => Colour::Default.paint(file_name),
