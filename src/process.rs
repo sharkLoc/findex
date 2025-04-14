@@ -30,6 +30,12 @@ pub fn search_dir<P>(
 where
     P: AsRef<Path> + Clone,
 {
+
+    if !src.as_ref().exists() {
+        eprintln!("error: dir `{}` not exists", src.as_ref().display());
+        std::process::exit(1);
+    }   
+
     let mut fp: Box<dyn Write> = if let Some(out) = outfile {
         Box::new(File::create(out)?)
     } else {
@@ -157,7 +163,27 @@ where
         if show_file_name {
             let file_name = rec.file_name().to_str().unwrap().as_bytes();
             if is_tty {
-                buffer_colour.push(Colour::Default.paint(file_name));
+                // buffer_colour.push(Colour::Default.paint(file_name));
+                let file_extension = rec.path().extension().and_then(|ext| ext.to_str());
+                let colorized_name = match file_extension {
+                    Some("gz") | Some("bz2") | Some("zip") | Some("tar") | Some("xz") | Some("lz4") | Some("zst") => {
+                        Colour::Red.paint(file_name)
+                    }
+                    Some("png") | Some("jpeg") | Some("jpg") | Some("svg") | Some("tiff") | Some("bmp") => {
+                        Colour::Purple.paint(file_name)
+                    }
+                    Some("pdf") | Some("html") | Some("xml") |  Some("json") | Some("tsv") | Some("csv") | Some("xlsx") => {
+                        Colour::BrightYellow.paint(file_name)
+                    }
+                    Some("log") | Some("txt") | Some("md") | Some("Md") | Some("MD") | Some("yaml") | Some("yml") | Some("toml") | Some("ini") => {
+                        Colour::Cyan.paint(file_name)
+                    }
+                    Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java") | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh") | Some("bash") | Some("zsh") | Some("fish")=> {
+                        Colour::BrightGreen.paint(file_name)
+                    }
+                    _ => Colour::Default.paint(file_name),
+                };
+                buffer_colour.push(colorized_name);
                 buffer_colour.push(Colour::Default.paint(b"\t"));
             } else {
                 buffer.push(file_name);
@@ -167,7 +193,6 @@ where
 
         // show full path or not
         let mut file_path = PathBuf::new();
-        //let mut file_path_colour = PathBuf::new();
         let ledding_root = rec.path().starts_with("/");
 
         if full_path {

@@ -8,12 +8,14 @@ mod cli;
 mod process;
 
 fn main() {
+    let now = std::time::Instant::now();
     match run_main() {
         Ok(_) => {}
         Err(_) => {
             std::process::exit(1);
         }
     }
+    eprintln!("Elapsed: {:?}", now.elapsed());
 }
 
 fn run_main() -> Result<(), Error> {
