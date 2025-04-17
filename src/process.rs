@@ -7,10 +7,13 @@ use std::{
     time::SystemTime,
 };
 use walkdir::{self, DirEntry, WalkDir};
+use regex::RegexBuilder;
 
 #[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
     src: P,
+    regex_pattern: Option<&str>,
+    ignore_case: bool,
     all: bool,
     depth: usize,
     show_type: bool,
@@ -40,6 +43,18 @@ where
     } else {
         Box::new(BufWriter::new(io::stdout()))
     };
+
+    let regex = if let Some(pattern) = regex_pattern {
+        Some(
+            RegexBuilder::new(pattern)
+                .case_insensitive(ignore_case)
+                .build()
+                .unwrap(),
+        )
+    } else {
+        None
+    };
+
 
     let is_tty = outfile.is_none();
 
@@ -256,6 +271,13 @@ where
                 continue;
             }
             if typ == "l" && !rec.file_type().is_symlink() {
+                continue;
+            }
+        }
+
+        // skip mismatch regex
+        if regex_pattern.is_some() {
+            if !regex.as_ref().unwrap().is_match(file_path.to_str().unwrap()) {
                 continue;
             }
         }

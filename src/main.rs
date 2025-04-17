@@ -26,6 +26,8 @@ fn run_main() -> Result<(), Error> {
 
     search_dir(
         dir,
+        opt.regex.as_deref(),
+        opt.ignore_case,
         opt.show_all,
         opt.deepth,
         opt.show_type,
