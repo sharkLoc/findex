@@ -1,6 +1,20 @@
-use clap::{ArgAction, Parser};
+use clap::{
+    ArgAction, Parser,
+    builder::{
+        Styles,
+        styling::{AnsiColor, Effects},
+    },
+};
+
+// Configures Clap help menu colors
+const STYLES: Styles = Styles::styled()
+    .header(AnsiColor::Green.on_default().effects(Effects::BOLD))
+    .usage(AnsiColor::Green.on_default().effects(Effects::BOLD))
+    .literal(AnsiColor::Cyan.on_default().effects(Effects::BOLD))
+    .placeholder(AnsiColor::Cyan.on_default());
 
 #[derive(Parser, Debug)]
+#[command(styles = STYLES)]
 #[command(
     name = "fdx",
     author = env!("CARGO_PKG_AUTHORS"),

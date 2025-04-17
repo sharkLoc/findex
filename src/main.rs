@@ -21,85 +21,27 @@ fn main() {
 fn run_main() -> Result<(), Error> {
     let opt = Opt::parse();
 
-    if let Some(dir) = opt.rootdir {
-        match opt.ext {
-            Some(ext) => search_dir(
-                dir,
-                opt.show_all,
-                opt.deepth,
-                opt.show_type,
-                opt.show_size,
-                &opt.size_fmt,
-                opt.created_time,
-                opt.filetype.as_ref(),
-                Some(ext.as_str()),
-                opt.name,
-                opt.depth,
-                opt.full_path,
-                opt.show_link_dir,
-                opt.show_hiden,
-                opt.header,
-                opt.out.as_ref(),
-            )?,
-            None => search_dir(
-                dir,
-                opt.show_all,
-                opt.deepth,
-                opt.show_type,
-                opt.show_size,
-                &opt.size_fmt,
-                opt.created_time,
-                opt.filetype.as_ref(),
-                None,
-                opt.name,
-                opt.depth,
-                opt.full_path,
-                opt.show_link_dir,
-                opt.show_hiden,
-                opt.header,
-                opt.out.as_ref(),
-            )?,
-        }
-    } else {
-        match opt.ext {
-            Some(ext) => search_dir(
-                ".",
-                opt.show_all,
-                opt.deepth,
-                opt.show_type,
-                opt.show_size,
-                &opt.size_fmt,
-                opt.created_time,
-                opt.filetype.as_ref(),
-                Some(ext.as_str()),
-                opt.name,
-                opt.depth,
-                opt.full_path,
-                opt.show_link_dir,
-                opt.show_hiden,
-                opt.header,
-                opt.out.as_ref(),
-            )?,
-            None => search_dir(
-                ".",
-                opt.show_all,
-                opt.deepth,
-                opt.show_type,
-                opt.show_size,
-                &opt.size_fmt,
-                opt.created_time,
-                opt.filetype.as_ref(),
-                None,
-                opt.name,
-                opt.depth,
-                opt.full_path,
-                opt.show_link_dir,
-                opt.show_hiden,
-                opt.header,
-                opt.out.as_ref(),
-            )?,
-        }
-    };
+    // if opt.rootdir is None, use default value "."
+    let dir = opt.rootdir.unwrap_or_else(|| ".".to_string());
+
+    search_dir(
+        dir,
+        opt.show_all,
+        opt.deepth,
+        opt.show_type,
+        opt.show_size,
+        &opt.size_fmt,
+        opt.created_time,
+        opt.filetype.as_ref(),
+        opt.ext.as_deref(),
+        opt.name,
+        opt.depth,
+        opt.full_path,
+        opt.show_link_dir,
+        opt.show_hiden,
+        opt.header,
+        opt.out.as_ref(),
+    )?;
 
     Ok(())
 }

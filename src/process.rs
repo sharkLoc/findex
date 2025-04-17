@@ -30,18 +30,17 @@ pub fn search_dir<P>(
 where
     P: AsRef<Path> + Clone,
 {
-
     if !src.as_ref().exists() {
         eprintln!("error: dir `{}` not exists", src.as_ref().display());
         std::process::exit(1);
-    }   
+    }
 
     let mut fp: Box<dyn Write> = if let Some(out) = outfile {
         Box::new(File::create(out)?)
     } else {
         Box::new(BufWriter::new(io::stdout()))
     };
-    
+
     let is_tty = outfile.is_none();
 
     let mut item_count = 0usize;
@@ -166,19 +165,19 @@ where
                 // buffer_colour.push(Colour::Default.paint(file_name));
                 let file_extension = rec.path().extension().and_then(|ext| ext.to_str());
                 let colorized_name = match file_extension {
-                    Some("gz") | Some("bz2") | Some("zip") | Some("tar") | Some("xz") | Some("lz4") | Some("zst") => {
-                        Colour::Red.paint(file_name)
-                    }
-                    Some("png") | Some("jpeg") | Some("jpg") | Some("svg") | Some("tiff") | Some("bmp") => {
-                        Colour::Purple.paint(file_name)
-                    }
-                    Some("pdf") | Some("html") | Some("xml") |  Some("json") | Some("tsv") | Some("csv") | Some("xlsx") => {
-                        Colour::BrightYellow.paint(file_name)
-                    }
-                    Some("log") | Some("txt") | Some("md") | Some("Md") | Some("MD") | Some("yaml") | Some("yml") | Some("toml") | Some("ini") => {
+                    Some("gz") | Some("bz2") | Some("zip") | Some("tar") | Some("xz")
+                    | Some("lz4") | Some("zst") => Colour::Red.paint(file_name),
+                    Some("png") | Some("jpeg") | Some("jpg") | Some("svg") | Some("tiff")
+                    | Some("bmp") => Colour::Purple.paint(file_name),
+                    Some("pdf") | Some("html") | Some("xml") | Some("json") | Some("tsv")
+                    | Some("csv") | Some("xlsx") => Colour::BrightYellow.paint(file_name),
+                    Some("log") | Some("txt") | Some("md") | Some("Md") | Some("MD")
+                    | Some("yaml") | Some("yml") | Some("toml") | Some("ini") => {
                         Colour::Cyan.paint(file_name)
                     }
-                    Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java") | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh") | Some("bash") | Some("zsh") | Some("fish") | Some("r") | Some("R") => {
+                    Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java")
+                    | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh")
+                    | Some("bash") | Some("zsh") | Some("fish") | Some("r") | Some("R") => {
                         Colour::BrightGreen.paint(file_name)
                     }
                     _ => Colour::Default.paint(file_name),
@@ -197,9 +196,8 @@ where
 
         if full_path {
             if !ledding_root {
-                
                 file_path.push(env::current_dir()?);
-                
+
                 if rec.path().starts_with(".") {
                     file_path.push(rec.path().strip_prefix(".").unwrap());
                 } else {
@@ -225,14 +223,12 @@ where
                 buffer.push(file_path.to_str().unwrap().as_bytes());
             }
         } else {
-
             // if !ledding_root {
             //     file_path.push(rec.path().strip_prefix(".").unwrap());
             // } else {
             //     file_path.push(rec.path());
             // }
             file_path.push(rec.path());
-
 
             if is_tty {
                 if file_path.is_dir() {
@@ -338,7 +334,7 @@ fn time_trans(seconds: u64) -> String {
     }
     if remaining_seconds_after_minutes > 0 {
         time_string.push_str(&format!("{}s", remaining_seconds_after_minutes));
-    } 
+    }
     if time_string.is_empty() {
         time_string.push_str("0s");
     }
