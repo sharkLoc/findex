@@ -32,6 +32,8 @@ fn run_main() -> Result<(), Error> {
         opt.deepth,
         opt.show_type,
         opt.show_size,
+        opt.file_size_max,
+        opt.file_size_min,
         &opt.size_fmt,
         opt.created_time,
         opt.filetype.as_ref(),

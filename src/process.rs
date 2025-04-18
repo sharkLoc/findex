@@ -18,6 +18,8 @@ pub fn search_dir<P>(
     depth: usize,
     show_type: bool,
     show_size: bool,
+    size_limit_max: Option<u64>,
+    size_limit_min: Option<u64>,
     size_fmt: &str,
     created_time: bool,
     filter_type: Option<&String>,
@@ -137,6 +139,19 @@ where
             } else {
                 buffer.push(file_type.as_bytes());
                 buffer.push(b"\t");
+            }
+        }
+
+
+        let size = metainfo.len();
+        if let Some(limit) = size_limit_max {
+            if size > limit {
+                continue;
+            }
+        }
+        if let Some(limit) = size_limit_min {
+            if size < limit {
+                continue;
             }
         }
 

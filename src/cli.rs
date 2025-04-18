@@ -82,7 +82,7 @@ pub struct Opt {
     #[arg(short = 'e', long = "ext", value_name = "String")]
     pub ext: Option<String>,
 
-    /// Apply a regular expression filter to file paths. 
+    /// Apply a regular expression filter to file paths
     /// {n}The regex is matched against the full file path (not just the file name)
     /// {n}For example:
     /// {n}     - To match files ending with `.gz`: `-r "\.gz$"`
@@ -91,9 +91,23 @@ pub struct Opt {
     #[arg(short = 'r', long = "regex", value_name = "Regex")]
     pub regex: Option<String>,
 
-    /// Ignore case when filtering with the `-r` regex option.
+    /// Ignore case when filtering with the `-r` regex option
     #[arg(short = 'I', long = "ignore-case")]
     pub ignore_case: bool,
+
+    /// Filter file size larger than the specified size (in bytes)
+    /// {n}Examples:
+    /// {n}     - Exclude files larger than 1 MB: `--max-size 1048576`
+    /// {n}     - Exclude files larger than 500 KB: `--max-size 512000`
+    #[arg(long = "max-size", value_name = "Number")]
+    pub file_size_max: Option<u64>,
+
+    /// Filter files smaller than the specified size (in bytes)
+    /// {n}Examples:
+    /// {n}     - Exclude files smaller than 1 KB: `--min-size 1024`
+    /// {n}     - Exclude files smaller than 10 MB: `--min-size 10485760`
+    #[arg(long = "min-size", value_name = "Number")]
+    pub file_size_min: Option<u64>,
 
     /// Omit the header row in the output.
     #[arg(short = 'H', long = "no-header")]
@@ -106,7 +120,7 @@ pub struct Opt {
     #[arg(short = 'T', long = "filter-type", value_name = "String")]
     pub filetype: Option<String>,
 
-    /// Write the output to a file instead of stdout.
+    /// Write the output to a file instead of stdout
     #[arg(short = 'o', long = "out", value_name = "File")]
     pub out: Option<String>,
 
