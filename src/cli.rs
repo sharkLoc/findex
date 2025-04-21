@@ -124,6 +124,10 @@ pub struct Opt {
     #[arg(short = 'o', long = "out", value_name = "File")]
     pub out: Option<String>,
 
+    /// Control verbosity of logging
+    #[arg(short = 'v', long = "verbosity", action = ArgAction::Count, global = true, default_value_t = 4)]
+    pub verbose: u8,
+
     /// Prints help information
     #[arg(short = 'h', long, action = ArgAction::Help)]
     pub help: Option<String>,

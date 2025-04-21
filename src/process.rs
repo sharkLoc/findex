@@ -1,4 +1,6 @@
 use ansiterm::{ANSIByteStrings, Colour};
+use log::*;
+use regex::RegexBuilder;
 use std::{
     env,
     fs::File,
@@ -7,7 +9,6 @@ use std::{
     time::SystemTime,
 };
 use walkdir::{self, DirEntry, WalkDir};
-use regex::RegexBuilder;
 
 #[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
@@ -46,17 +47,12 @@ where
         Box::new(BufWriter::new(io::stdout()))
     };
 
-    let regex = if let Some(pattern) = regex_pattern {
-        Some(
-            RegexBuilder::new(pattern)
-                .case_insensitive(ignore_case)
-                .build()
-                .unwrap(),
-        )
-    } else {
-        None
-    };
-
+    let regex = regex_pattern.map(|pattern| {
+        RegexBuilder::new(pattern)
+            .case_insensitive(ignore_case)
+            .build()
+            .unwrap()
+    });
 
     let is_tty = outfile.is_none();
 
@@ -141,7 +137,6 @@ where
                 buffer.push(b"\t");
             }
         }
-
 
         let size = metainfo.len();
         if let Some(limit) = size_limit_max {
@@ -291,10 +286,13 @@ where
         }
 
         // skip mismatch regex
-        if regex_pattern.is_some() {
-            if !regex.as_ref().unwrap().is_match(file_path.to_str().unwrap()) {
-                continue;
-            }
+        if regex_pattern.is_some()
+            && !regex
+                .as_ref()
+                .unwrap()
+                .is_match(file_path.to_str().unwrap())
+        {
+            continue;
         }
 
         if is_tty {
@@ -331,7 +329,7 @@ where
     }
     fp.flush()?;
 
-    eprintln!("total item: {}", item_count);
+    info!("total item: {}", item_count);
     Ok(())
 }
 

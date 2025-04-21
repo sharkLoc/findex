@@ -22,6 +22,8 @@ path = "src/main.rs"
 [dependencies]
 ansiterm = "0.12.2"
 clap = { version = "4.5.35", features = ["derive"] }
+env_logger = "0.11.8"
+log = "0.4.27"
 regex = "1.11.1"
 walkdir = "2.5.0"
 

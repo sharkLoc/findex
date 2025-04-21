@@ -67,4 +67,4 @@ Options:
 
 - [X] ansi style in tty output
 - [X] support regex filter
-- [ ] add logger
+- [X] add logger

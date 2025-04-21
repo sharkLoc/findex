@@ -2,6 +2,7 @@ use std::io::Error;
 
 use clap::Parser;
 use cli::Opt;
+use log::info;
 use process::search_dir;
 
 mod cli;
@@ -15,11 +16,33 @@ fn main() {
             std::process::exit(1);
         }
     }
-    eprintln!("Elapsed: {:?}", now.elapsed());
+    info!("Elapsed: {:?}", now.elapsed());
+}
+
+fn log_level(verbose: u8) -> log::LevelFilter {
+    match verbose {
+        1 => log::LevelFilter::Error,
+        2 => log::LevelFilter::Warn,
+        3 => log::LevelFilter::Info,
+        4 => log::LevelFilter::Debug,
+        5 => log::LevelFilter::Trace,
+        _ => log::LevelFilter::Off,
+    }
 }
 
 fn run_main() -> Result<(), Error> {
     let opt = Opt::parse();
+
+    // Set up logging
+    let mut logger = env_logger::Builder::new();
+    logger
+        .filter(None, log_level(opt.verbose))
+        .format_timestamp(None)
+        .format_module_path(true)
+        .format_target(true)
+        .format_indent(Some(2))
+        .format_level(true)
+        .init();
 
     // if opt.rootdir is None, use default value "."
     let dir = opt.rootdir.unwrap_or_else(|| ".".to_string());
