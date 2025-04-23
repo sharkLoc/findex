@@ -37,7 +37,7 @@ fn run_main() -> Result<(), Error> {
     let mut logger = env_logger::Builder::new();
     logger
         .filter(None, log_level(opt.verbose))
-        .format_timestamp(None)
+        .format_timestamp(Some(env_logger::fmt::TimestampPrecision::Seconds))
         .format_module_path(true)
         .format_target(true)
         .format_indent(Some(2))
