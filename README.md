@@ -8,7 +8,7 @@ you can download pre-build static binary file from [here](https://github.com/sha
 ```bash
 fdx -- A file scanning tool for Linux system disks
 
-Version: 0.1.
+Version: 0.1.3
 Authors: sharkLoc <mmtinfo@163.com>
 Source code: https://github.com/sharkLoc/findex.git
 
