@@ -1,6 +1,6 @@
 [package]
 name = "findex"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 authors = ["sharkLoc <mmtinfo@163.com>"]
 rust-version = "1.85.0"
@@ -20,11 +20,11 @@ path = "src/main.rs"
 
 
 [dependencies]
-ansiterm = "0.12.2"
 clap = { version = "4.5.35", features = ["derive"] }
 env_logger = "0.11.8"
 log = "0.4.27"
 regex = "1.11.1"
+tabwriter = { version = "1.4.1", features = ["ansi_formatting"] }
 walkdir = "2.5.0"
 
 

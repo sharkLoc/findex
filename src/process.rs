@@ -1,5 +1,4 @@
-use ansiterm::{ANSIByteStrings, Colour};
-use log::*;
+use log::info;
 use regex::RegexBuilder;
 use std::{
     env,
@@ -8,7 +7,19 @@ use std::{
     path::{Path, PathBuf},
     time::SystemTime,
 };
+use tabwriter::TabWriter;
 use walkdir::{self, DirEntry, WalkDir};
+
+//  define ANSI color codes
+const COLOR_RESET: &str = "\x1b[0m";
+const COLOR_RED: &str = "\x1b[31m";
+const COLOR_GREEN: &str = "\x1b[32m";
+const COLOR_YELLOW: &str = "\x1b[33m";
+const COLOR_BLUE: &str = "\x1b[34m";
+const COLOR_PINK: &str = "\x1b[35m";
+const COLOR_CYAN: &str = "\x1b[36m";
+const COLOR_WHITE: &str = "\x1b[37m";
+
 
 #[allow(clippy::too_many_arguments)]
 pub fn search_dir<P>(
@@ -55,8 +66,8 @@ where
     });
 
     let is_tty = outfile.is_none();
-
     let mut item_count = 0usize;
+    let mut tw = TabWriter::new(vec![]);
 
     let (mut show_type, mut show_size, mut created_time, mut show_file_name, mut full_path) = (
         show_type,
@@ -90,9 +101,14 @@ where
         }
         header.push("Path");
         let header_join = header.join("\t") + "\n";
-        fp.write_all(header_join.as_bytes())?;
-    }
 
+        if is_tty {
+            write!(&mut tw, "{}", header_join)?;
+        } else {
+            fp.write_all(header_join.as_bytes())?;
+        }
+    }
+    let mut vec_all: Vec<String> = vec![];
     for entry in WalkDir::new(src)
         .min_depth(0)
         .max_depth(depth)
@@ -106,7 +122,7 @@ where
 
         let metainfo = rec.metadata()?;
         let mut buffer: Vec<&[u8]> = vec![];
-        let mut buffer_colour: Vec<ansiterm::ANSIGenericString<'_, [u8]>> = vec![];
+        let mut buffer_ansi: Vec<String> = vec![];
 
         if show_type {
             let file_type = if rec.file_type().is_dir() {
@@ -120,17 +136,13 @@ where
             };
             if is_tty {
                 if file_type == "dir" {
-                    buffer_colour.push(Colour::Blue.paint("dir".as_bytes()));
-                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                    buffer_ansi.push(format!("{COLOR_BLUE}dir{COLOR_RESET}\t"));
                 } else if file_type == "symlink" {
-                    buffer_colour.push(Colour::BrightCyan.paint("symlink".as_bytes()));
-                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                    buffer_ansi.push(format!("{COLOR_CYAN}symlink{COLOR_RESET}\t"));
                 } else if file_type == "file" {
-                    buffer_colour.push(Colour::Default.paint("file".as_bytes()));
-                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                    buffer_ansi.push(format!("{COLOR_WHITE}file{COLOR_RESET}\t"));
                 } else {
-                    buffer_colour.push(Colour::Red.paint("other".as_bytes()));
-                    buffer_colour.push(Colour::Default.paint(b"\t"));
+                    buffer_ansi.push(format!("{COLOR_RED}other{COLOR_RESET}\t"));
                 }
             } else {
                 buffer.push(file_type.as_bytes());
@@ -157,8 +169,7 @@ where
             file_size_tmp.push_str(&file_size);
 
             if is_tty {
-                buffer_colour.push(Colour::Default.paint(file_size_tmp.as_bytes()));
-                buffer_colour.push(Colour::Default.paint(b"\t"));
+                buffer_ansi.push(format!("{COLOR_WHITE}{}{COLOR_RESET}\t", file_size_tmp));
             } else {
                 buffer.push(file_size_tmp.as_bytes());
                 buffer.push(b"\t");
@@ -175,8 +186,7 @@ where
             ctime_fmt.push_str(&fmt_time);
 
             if is_tty {
-                buffer_colour.push(Colour::Default.paint(ctime_fmt.as_bytes()));
-                buffer_colour.push(Colour::Default.paint(b"\t"));
+                buffer_ansi.push(format!("{COLOR_WHITE}{}{COLOR_RESET}\t", ctime_fmt));
             } else {
                 buffer.push(ctime_fmt.as_bytes());
                 buffer.push(b"\t");
@@ -185,32 +195,32 @@ where
 
         // show file name(just name) or not
         if show_file_name {
-            let file_name = rec.file_name().to_str().unwrap().as_bytes();
+            let file_name = rec.file_name().to_str().unwrap();
             if is_tty {
-                // buffer_colour.push(Colour::Default.paint(file_name));
                 let file_extension = rec.path().extension().and_then(|ext| ext.to_str());
                 let colorized_name = match file_extension {
                     Some("gz") | Some("bz2") | Some("zip") | Some("tar") | Some("xz")
-                    | Some("lz4") | Some("zst") => Colour::Red.paint(file_name),
+                    | Some("lz4") | Some("zst") => format!("{COLOR_RED}{}{COLOR_RESET}", file_name),
                     Some("png") | Some("jpeg") | Some("jpg") | Some("svg") | Some("tiff")
-                    | Some("bmp") => Colour::Purple.paint(file_name),
+                    | Some("bmp") => format!("{COLOR_PINK}{}{COLOR_RESET}", file_name),
                     Some("pdf") | Some("html") | Some("xml") | Some("json") | Some("tsv")
-                    | Some("csv") | Some("xlsx") => Colour::BrightYellow.paint(file_name),
+                    | Some("csv") | Some("xlsx") => {
+                        format!("{COLOR_YELLOW}{}{COLOR_RESET}", file_name)
+                    }
                     Some("log") | Some("txt") | Some("md") | Some("Md") | Some("MD")
                     | Some("yaml") | Some("yml") | Some("toml") | Some("ini") => {
-                        Colour::Cyan.paint(file_name)
+                        format!("{COLOR_CYAN}{}{COLOR_RESET}", file_name)
                     }
                     Some("rs") | Some("go") | Some("py") | Some("pl") | Some("java")
                     | Some("js") | Some("ts") | Some("c") | Some("cpp") | Some("sh")
                     | Some("bash") | Some("zsh") | Some("fish") | Some("r") | Some("R") => {
-                        Colour::BrightGreen.paint(file_name)
+                        format!("{COLOR_GREEN}{}{COLOR_RESET}", file_name)
                     }
-                    _ => Colour::Default.paint(file_name),
+                    _ => format!("{COLOR_WHITE}{}{COLOR_RESET}", file_name),
                 };
-                buffer_colour.push(colorized_name);
-                buffer_colour.push(Colour::Default.paint(b"\t"));
+                buffer_ansi.push(format!("{}\t", colorized_name));
             } else {
-                buffer.push(file_name);
+                buffer.push(file_name.as_bytes());
                 buffer.push(b"\t");
             }
         }
@@ -234,15 +244,25 @@ where
 
             if is_tty {
                 if file_path.is_dir() {
-                    buffer_colour.push(Colour::Blue.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_BLUE}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else if file_path.is_symlink() {
-                    buffer_colour
-                        .push(Colour::BrightCyan.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_CYAN}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else if file_path.is_file() {
-                    buffer_colour
-                        .push(Colour::Default.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_WHITE}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else {
-                    buffer_colour.push(Colour::Red.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_RED}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 }
             } else {
                 buffer.push(file_path.to_str().unwrap().as_bytes());
@@ -257,15 +277,25 @@ where
 
             if is_tty {
                 if file_path.is_dir() {
-                    buffer_colour.push(Colour::Blue.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_BLUE}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else if file_path.is_symlink() {
-                    buffer_colour
-                        .push(Colour::BrightCyan.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_CYAN}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else if file_path.is_file() {
-                    buffer_colour
-                        .push(Colour::Default.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_WHITE}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 } else {
-                    buffer_colour.push(Colour::Red.paint(file_path.to_str().unwrap().as_bytes()));
+                    buffer_ansi.push(format!(
+                        "{COLOR_RED}{}{COLOR_RESET}",
+                        file_path.to_str().unwrap()
+                    ));
                 }
             } else {
                 buffer.push(file_path.to_str().unwrap().as_bytes());
@@ -296,7 +326,7 @@ where
         }
 
         if is_tty {
-            buffer_colour.push(Colour::Default.paint(b"\n"));
+            buffer_ansi.push("\n".to_string());
         } else {
             buffer.push(b"\n");
         }
@@ -311,8 +341,7 @@ where
             {
                 item_count += 1;
                 if is_tty {
-                    let ansistr = ANSIByteStrings(&buffer_colour);
-                    ansistr.write_to(&mut fp)?;
+                    vec_all.push(buffer_ansi.concat());
                 } else {
                     fp.write_all(buffer.concat().as_ref())?;
                 }
@@ -320,13 +349,21 @@ where
         } else {
             item_count += 1;
             if is_tty {
-                let ansistr = ANSIByteStrings(&buffer_colour);
-                ansistr.write_to(&mut fp)?;
+                vec_all.push(buffer_ansi.concat());
             } else {
                 fp.write_all(buffer.concat().as_ref())?;
             }
         }
     }
+
+    write!(&mut tw, "{}", vec_all.concat())?;
+    tw.flush()?;
+
+    fp.write_all(
+        String::from_utf8(tw.into_inner().unwrap())
+            .unwrap()
+            .as_bytes(),
+    )?;
     fp.flush()?;
 
     info!("total item: {}", item_count);
