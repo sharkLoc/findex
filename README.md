@@ -1,7 +1,7 @@
 A file scanning tool for Linux system disks
 
 ## Binary download
-you can download pre-build static binary file from [here](https://github.com/sharkLoc/findex/releases/download/0.1.2/fdx_static)
+you can download pre-build static binary file from [here](https://github.com/sharkLoc/findex/releases/download/0.1.4/fdx_static)
 
 ## usage
 
