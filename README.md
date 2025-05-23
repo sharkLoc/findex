@@ -1,5 +1,8 @@
 A file scanning tool for Linux system disks
 
+
+### This tool is only used for quickly viewing file information in the current working directory during private work.
+
 ## Binary download
 you can download pre-build static binary file from [here](https://github.com/sharkLoc/findex/releases/download/0.1.4/fdx_static)
 
