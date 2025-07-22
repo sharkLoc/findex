@@ -38,7 +38,7 @@ fn run_main() -> Result<(), Error> {
     logger
         .filter(None, log_level(opt.verbose))
         .format_timestamp(Some(env_logger::fmt::TimestampPrecision::Seconds))
-        .format_module_path(true)
+        .format_module_path(false)
         .format_target(true)
         .format_indent(Some(2))
         .format_level(true)
